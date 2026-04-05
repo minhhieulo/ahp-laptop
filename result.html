@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kết quả AHP – AHP Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Extra result page styles */
+    .no-data-state {
+      text-align: center; padding: 80px 0;
+    }
+    .no-data-state .nd-icon { font-size: 4rem; margin-bottom: 16px; }
+    .no-data-state h2 { font-family:'Syne',sans-serif; font-size:1.3rem; margin-bottom:10px; }
+    .no-data-state p  { color:var(--text2); font-size:.88rem; margin-bottom:24px; }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 32px;
+    }
+    .insight-card {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px;
+      transition: transform .2s, border-color .2s;
+    }
+    .insight-card:hover { transform: translateY(-3px); border-color: var(--border2); }
+    .insight-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .insight-label { font-size: .68rem; color: var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-bottom:5px; }
+    .insight-val { font-family:'Space Mono',monospace; font-size:1.15rem; font-weight:700; color:var(--accent2); }
+    .insight-sub { font-size:.76rem; color:var(--muted); margin-top:4px; }
+
+    .podium-wrap {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 12px; margin: 32px 0;
+    }
+    .podium-item { text-align: center; }
+    .podium-block {
+      border-radius: 10px 10px 0 0;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-end; padding: 12px;
+      min-width: 90px;
+    }
+    .podium-1 { background: linear-gradient(180deg, rgba(245,158,11,.4), rgba(245,158,11,.15)); height: 110px; border: 1px solid rgba(245,158,11,.4); }
+    .podium-2 { background: linear-gradient(180deg, rgba(148,163,184,.3), rgba(148,163,184,.1)); height: 80px;  border: 1px solid rgba(148,163,184,.3); }
+    .podium-3 { background: linear-gradient(180deg, rgba(180,130,80,.3), rgba(180,130,80,.1));  height: 60px;  border: 1px solid rgba(180,130,80,.3); }
+    .podium-rank { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; }
+    .podium-name { font-size:.7rem; color:var(--text2); margin-top:8px; font-weight:600; max-width:90px; }
+    .podium-score { font-family:'Space Mono',monospace; font-size:.75rem; color:var(--muted); }
+  </style>
+</head>
+<body class="page-enter">
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Đang tải kết quả AHP<span class="loading-dots"></span></div>
+</div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">📊</div>
+    AHP Pro
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html"    class="nav-link">Trang chủ</a>
+    <a href="products.html" class="nav-link">Laptop</a>
+    <a href="ahp.html"      class="nav-link">Thực hiện AHP</a>
+    <a href="result.html"   class="nav-link active">Kết quả</a>
+    <a href="sensitivity.html" class="nav-link">Độ nhạy</a>
+    <a href="report.html"   class="nav-link">Báo cáo</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeToggle">☀️ Light</button>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" style="padding:52px 0 32px;text-align:center">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-pulse"></div>
+      Bước 4 · Kết quả phân tích AHP hoàn chỉnh
+    </div>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.8rem)">Kết Quả<br>Phân Tích AHP</h1>
+    <p class="subtitle">Xếp hạng laptop theo điểm tổng hợp, biểu đồ so sánh và kiểm định nhất quán CR.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps">
+    <div class="step done" id="st1"><div class="step-num">✓</div>Giới thiệu</div>
+    <div class="step done" id="st2"><div class="step-num">✓</div>Tiêu chí</div>
+    <div class="step done" id="st3"><div class="step-num">✓</div>Phương án</div>
+    <div class="step active" id="st4"><div class="step-num">4</div>Kết quả</div>
+  </div>
+
+  <!-- CONTENT: NO DATA STATE -->
+  <div id="noDataState" class="no-data-state hidden">
+    <div class="nd-icon">📊</div>
+    <h2>Chưa có dữ liệu kết quả</h2>
+    <p>Bạn cần thực hiện phân tích AHP trước khi xem kết quả.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="ahp.html" class="btn btn-primary">🧮 Thực hiện AHP ngay</a>
+      <button class="btn btn-secondary" onclick="loadSampleAndCalc()">📥 Dùng dữ liệu mẫu</button>
+    </div>
+  </div>
+
+  <!-- CONTENT: RESULTS -->
+  <div id="resultsContent" class="hidden">
+
+    <!-- WINNER CARD -->
+    <div class="winner-card">
+      <div class="winner-confetti" id="confettiContainer"></div>
+      <span class="winner-trophy">🏆</span>
+      <div class="winner-label">Laptop được đề xuất tốt nhất</div>
+      <div class="winner-name"  id="winnerName">–</div>
+      <div class="winner-score" id="winnerScore">–</div>
+      <div class="winner-badges" id="winnerBadges"></div>
+    </div>
+
+    <!-- PODIUM -->
+    <section>
+      <div class="section-label">🥇 Bục chiến thắng Top 3</div>
+      <div class="podium-wrap" id="podiumWrap"></div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section>
+      <div class="section-label">📌 Insight nhanh</div>
+      <div class="insight-grid" id="insightGrid"></div>
+    </section>
+
+    <!-- WEIGHT GRID -->
+    <section>
+      <div class="section-label">⚖️ Trọng số tiêu chí</div>
+      <div class="weight-grid" id="weightGrid"></div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- RANKING TABLE -->
+    <section>
+      <div class="section-label">📋 Bảng xếp hạng đầy đủ</div>
+      <div class="matrix-wrapper">
+        <table class="result-table">
+          <thead id="resultHead"></thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CR SUMMARY -->
+    <section>
+      <div class="section-label">✅ Kiểm định nhất quán CR</div>
+      <div class="cr-summary-grid" id="crSummaryGrid"></div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CHARTS -->
+    <section>
+      <div class="section-label">📈 Biểu đồ trực quan</div>
+      <div class="charts-grid">
+        <div class="chart-wrap">
+          <p class="chart-title">📊 Điểm tổng hợp cuối cùng</p>
+          <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <p class="chart-title">🕸 Radar – So sánh theo tiêu chí</p>
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPORT -->
+    <section>
+      <div class="section-label">📤 Xuất báo cáo</div>
+      <div class="btn-row">
+        <button class="btn btn-pdf"   onclick="exportPDF()">📄 Xuất báo cáo PDF</button>
+        <button class="btn btn-excel" onclick="exportExcel()">📊 Xuất Excel</button>
+        <a href="report.html" class="btn btn-ghost">📋 Xem báo cáo chi tiết</a>
+        <button class="btn btn-secondary" onclick="recalculate()">🔄 Tính lại</button>
+      </div>
+    </section>
+
+  </div><!-- /resultsContent -->
+
+</div>
+
+<footer>
+  <div class="footer-logo">AHP Pro</div>
+  <p>Đồ án · <span>Hệ hỗ trợ ra quyết định</span> · AHP Method · © 2025</p>
+  <div class="footer-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="products.html">Laptop</a>
+    <a href="ahp.html">Thực hiện AHP</a>
+    <a href="report.html">Báo cáo</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+/* ================================================================
+   RESULT PAGE – Load & display saved AHP results
+   ================================================================ */
+
+// gChartBar & gChartRadar already declared in script.js – do not redeclare
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = loadResultsFromStorage();
+  if (saved) {
+    initResultPage(saved);
+  } else {
+    document.getElementById('noDataState').classList.remove('hidden');
+  }
+});
+
+/* Lấy kết quả từ localStorage */
+function loadResultsFromStorage() {
+  try {
+    return JSON.parse(localStorage.getItem('ahp_results') || 'null');
+  } catch(e) { return null; }
+}
+
+/* Hiển thị toàn bộ kết quả – nhận object {ranked, cWeights, altWeightsAll, scores, crs} */
+function initResultPage(data) {
+  const { ranked, cWeights, altWeightsAll, scores, crs } = data;
+  if (!ranked || !ranked.length) {
+    document.getElementById('noDataState').classList.remove('hidden');
+    return;
+  }
+
+  document.getElementById('resultsContent').classList.remove('hidden');
+
+  // Lưu vào biến global cho export (cả window lẫn script.js globals)
+  window.gRanked = gRanked = ranked;
+  window.gCWeights = gCWeights = cWeights;
+  window.gAltWeightsAll = gAltWeightsAll = altWeightsAll;
+  window.gScores = gScores = scores;
+  window.gCRs = gCRs = crs;
+
+  renderWinner(ranked[0]);
+  renderPodium(ranked);
+  renderInsights(ranked, cWeights, crs);
+  renderWeightGrid(cWeights);
+  renderRankingTable(ranked, cWeights, altWeightsAll);
+  renderCRSummary(crs);
+  renderCharts(ranked, cWeights, altWeightsAll);
+  spawnConfetti();
+}
+
+/* ── Winner card ── */
+function renderWinner(w) {
+  document.getElementById('winnerName').textContent  = w.name;
+  document.getElementById('winnerScore').textContent = `Điểm tổng hợp: ${(w.score*100).toFixed(3)}%`;
+  document.getElementById('winnerBadges').innerHTML  =
+    `<div class="winner-badge">🥇 Hạng 1</div>
+     <div class="winner-badge">⭐ Best Choice</div>
+     <div class="winner-badge">${(w.score*100).toFixed(1)}% điểm</div>`;
+}
+
+/* ── Podium top 3 ── */
+function renderPodium(ranked) {
+  if (ranked.length < 2) return;
+  const top3 = ranked.slice(0, Math.min(3, ranked.length));
+  // Sắp xếp hiển thị: 2, 1, 3
+  const order = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : [top3[0]];
+  const cls   = ['podium-2', 'podium-1', 'podium-3'];
+  const labels= ['🥈', '🥇', '🥉'];
+  document.getElementById('podiumWrap').innerHTML = order.map((item, i) =>
+    `<div class="podium-item">
+      <div class="podium-block ${cls[i]}">
+        <div class="podium-rank">${labels[i]}</div>
+      </div>
+      <div class="podium-name">${item.name}</div>
+      <div class="podium-score">${(item.score*100).toFixed(2)}%</div>
+    </div>`
+  ).join('');
+}
+
+/* ── Insight grid ── */
+function renderInsights(ranked, cWeights, crs) {
+  const maxCrit  = cWeights.indexOf(Math.max(...cWeights));
+  const allOk    = crs.every(c => c.cr <= 0.1);
+  const spread   = ((ranked[0].score - ranked[ranked.length-1].score)*100).toFixed(2);
+  document.getElementById('insightGrid').innerHTML = `
+    <div class="insight-card">
+      <div class="insight-icon">🏆</div>
+      <div class="insight-label">Laptop tốt nhất</div>
+      <div class="insight-val">${ranked[0].name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="insight-sub">Điểm ${(ranked[0].score*100).toFixed(2)}%</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">⚖️</div>
+      <div class="insight-label">Tiêu chí quan trọng nhất</div>
+      <div class="insight-val">${CRITERIA[maxCrit]}</div>
+      <div class="insight-sub">Trọng số ${(cWeights[maxCrit]*100).toFixed(1)}%</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">✅</div>
+      <div class="insight-label">Nhất quán CR</div>
+      <div class="insight-val" style="color:${allOk?'var(--success)':'var(--danger)'}">${allOk?'Đạt ✓':'Cần xem lại ✗'}</div>
+      <div class="insight-sub">${crs.length} ma trận kiểm định</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">📊</div>
+      <div class="insight-label">Khoảng cách điểm</div>
+      <div class="insight-val">${spread}%</div>
+      <div class="insight-sub">Giữa #1 và #${ranked.length}</div>
+    </div>`;
+}
+
+/* ── Weight grid ── */
+function renderWeightGrid(cWeights) {
+  const maxW = Math.max(...cWeights);
+  document.getElementById('weightGrid').innerHTML = CRITERIA.map((c, i) =>
+    `<div class="weight-card">
+      <div class="weight-icon">${CRITERIA_ICONS[i]}</div>
+      <div class="weight-label">${c}</div>
+      <div class="weight-value">${(cWeights[i]*100).toFixed(2)}%</div>
+      <div class="weight-bar-wrap">
+        <div class="weight-bar" style="width:${(cWeights[i]/maxW*100)}%"></div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+/* ── Ranking table ── */
+function renderRankingTable(ranked, cWeights, altWeightsAll) {
+  const maxScore = ranked[0].score;
+  // Head
+  document.getElementById('resultHead').innerHTML =
+    `<tr><th>Hạng</th><th>Laptop</th>` +
+    CRITERIA.map(c => `<th>${c}</th>`).join('') +
+    `<th>Điểm tổng hợp</th></tr>`;
+  // Body
+  document.getElementById('resultBody').innerHTML = ranked.map((r, ri) =>
+    `<tr>
+      <td><span class="rank-badge rank-${ri+1}">${ri+1}</span></td>
+      <td style="font-weight:700;color:${ri===0?'var(--accent)':'var(--text)'}">${LAPTOP_ICONS[r.idx]} ${r.name}</td>
+      ${altWeightsAll.map(aw => `<td style="color:var(--text2);font-size:.8rem;font-family:'Space Mono',monospace">${(aw[r.idx]*100).toFixed(2)}%</td>`).join('')}
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar" style="width:${(r.score/maxScore*100)}%;max-width:120px"></div>
+          <span class="score-num">${(r.score*100).toFixed(3)}%</span>
+        </div>
+      </td>
+    </tr>`
+  ).join('');
+}
+
+/* ── CR Summary ── */
+function renderCRSummary(crs) {
+  document.getElementById('crSummaryGrid').innerHTML = crs.map(item =>
+    `<div class="cr-mini">
+      <div class="crlabel">${item.label}</div>
+      <div class="crval ${item.cr<=0.1?'ok':'bad'}">${item.cr.toFixed(4)} ${item.cr<=0.1?'✓':'✗'}</div>
+    </div>`
+  ).join('');
+}
+
+/* ── Charts ── */
+function renderCharts(ranked, cWeights, altWeightsAll) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#9aacbf' : '#4a5a72';
+  const gridColor = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
+  const colors = ['#4f8ef7','#a78bfa','#00d4c8','#f472b6','#fb923c'];
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = gridColor;
+
+  // Bar chart
+  if (gChartBar) gChartBar.destroy();
+  gChartBar = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: ranked.map(r => r.name),
+      datasets: [{
+        label: 'Điểm tổng hợp',
+        data:  ranked.map(r => +(r.score*100).toFixed(3)),
+        backgroundColor: ranked.map((_, i) => colors[i % colors.length] + 'cc'),
+        borderColor:     ranked.map((_, i) => colors[i % colors.length]),
+        borderWidth: 2, borderRadius: 8, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(3)}%` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: v => v + '%' } },
+        x: { ticks: { maxRotation: 15 } }
+      },
+      animation: { duration: 1200, easing: 'easeOutQuart' }
+    }
+  });
+
+  // Radar chart
+  if (gChartRadar) gChartRadar.destroy();
+  gChartRadar = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: CRITERIA,
+      datasets: ranked.map((r, i) => ({
+        label: r.name,
+        data:  altWeightsAll.map(aw => +(aw[r.idx]*100).toFixed(3)),
+        backgroundColor: colors[i % colors.length] + '22',
+        borderColor:     colors[i % colors.length],
+        pointBackgroundColor: colors[i % colors.length],
+        borderWidth: 2, pointRadius: 4,
+      }))
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+      scales: {
+        r: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          pointLabels: { color: textColor, font: { size: 11 } },
+          ticks: { display: false }
+        }
+      },
+      animation: { duration: 1200, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* spawnConfetti() defined in script.js */
+
+/* ── Load sample & recalculate ── */
+function loadSampleAndCalc() {
+  try {
+    /* Tính AHP từ SAMPLE data có sẵn trong script.js */
+    const cResult  = ahpWeights(SAMPLE_CRITERIA);
+    const cWeights = cResult.weights;
+    const allCRs   = [{ label: 'Tiêu chí (5×5)', cr: cResult.CR, n: N_C }];
+    const altWeightsAll = [];
+
+    for (let ci = 0; ci < N_C; ci++) {
+      const aRes = ahpWeights(SAMPLE_ALT[ci]);
+      altWeightsAll.push(aRes.weights);
+      allCRs.push({ label: CRITERIA_ICONS[ci] + ' ' + CRITERIA[ci], cr: aRes.CR, n: N_A });
+    }
+
+    const scores = LAPTOPS.map((_, li) =>
+      CRITERIA.reduce((s, _, ci) => s + cWeights[ci] * altWeightsAll[ci][li], 0)
+    );
+
+    const ranked = scores
+      .map((s, i) => ({ name: LAPTOPS[i], icon: LAPTOP_ICONS[i], score: s, idx: i }))
+      .sort((a, b) => b.score - a.score);
+
+    const data = { ranked, cWeights, altWeightsAll, scores, crs: allCRs };
+    localStorage.setItem('ahp_results', JSON.stringify(data));
+
+    document.getElementById('noDataState').classList.add('hidden');
+    initResultPage(data);
+  } catch(e) {
+    alert('Lỗi khi tải dữ liệu mẫu: ' + e.message);
+  }
+}
+
+function recalculate() {
+  window.location.href = 'ahp.html';
+}
+</script>
+</body>
+</html>

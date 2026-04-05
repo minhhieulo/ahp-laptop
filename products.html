@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh sách Laptop – AHP Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .filter-bar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 28px; align-items: center;
+    }
+    .filter-btn {
+      padding: 7px 16px; border-radius: 9px;
+      background: var(--card2); border: 1.5px solid var(--border);
+      color: var(--text2); font-size: .8rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .filter-btn:hover  { border-color: var(--border2); color: var(--text); }
+    .filter-btn.active { background: rgba(79,142,247,.15); border-color: var(--accent); color: var(--accent); }
+
+    .compare-bar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--card); border: 1.5px solid var(--accent);
+      border-radius: 16px; padding: 14px 24px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 8px 40px rgba(79,142,247,.3);
+      z-index: 50; opacity: 0; pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      transform: translateX(-50%) translateY(20px);
+      flex-wrap: wrap;
+    }
+    .compare-bar.show {
+      opacity: 1; pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+    .compare-bar p { font-size: .88rem; font-weight: 600; color: var(--text); }
+    .compare-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .compare-chip {
+      padding: 4px 12px; border-radius: 8px;
+      background: rgba(79,142,247,.15); border: 1px solid rgba(79,142,247,.3);
+      color: var(--accent); font-size: .78rem; font-weight: 600;
+    }
+
+    .spec-detail-wrap {
+      background: var(--card3); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-top: 6px;
+    }
+    .spec-detail-title {
+      font-family: 'Syne', sans-serif; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--muted); margin-bottom: 8px;
+    }
+
+    .rating-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .78rem; margin-bottom: 6px;
+    }
+    .rating-row:last-child { margin-bottom: 0; }
+    .rating-label { color: var(--text2); }
+    .rating-stars { display: flex; gap: 2px; }
+    .star-fill { color: #f59e0b; }
+    .star-empty { color: var(--border2); }
+  </style>
+</head>
+<body class="page-enter">
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Tải danh sách laptop<span class="loading-dots"></span></div>
+</div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">📊</div>
+    AHP Pro
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html"    class="nav-link">Trang chủ</a>
+    <a href="products.html" class="nav-link active">Laptop</a>
+    <a href="ahp.html"      class="nav-link">Thực hiện AHP</a>
+    <a href="result.html"   class="nav-link">Kết quả</a>
+    <a href="sensitivity.html" class="nav-link">Độ nhạy</a>
+    <a href="report.html"   class="nav-link">Báo cáo</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeToggle">☀️ Light</button>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" style="padding:60px 0 40px">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-pulse"></div>
+      Danh sách phương án · 5 Laptop IT phổ biến 2024
+    </div>
+    <h1 style="font-size:clamp(1.8rem,4vw,3rem)">Laptop Dành Cho<br>Sinh Viên IT</h1>
+    <p class="subtitle">Khám phá các laptop hàng đầu 2024 được chọn lọc cho sinh viên IT.
+      Nhấn "Chọn so sánh" để tham gia phân tích AHP.</p>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FILTER BAR -->
+  <div class="section-label">💻 100 laptop trong hệ thống</div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProducts('all',this)">📋 Tất cả (100)</button>
+    <button class="filter-btn" onclick="filterProducts('apple',this)">🍎 Apple</button>
+    <button class="filter-btn" onclick="filterProducts('dell',this)">🔷 Dell</button>
+    <button class="filter-btn" onclick="filterProducts('asus',this)">🎮 ASUS</button>
+    <button class="filter-btn" onclick="filterProducts('lenovo',this)">🖤 Lenovo</button>
+    <button class="filter-btn" onclick="filterProducts('hp',this)">🔵 HP</button>
+    <button class="filter-btn" onclick="filterProducts('msi',this)">🔴 MSI</button>
+    <button class="filter-btn" onclick="filterProducts('acer',this)">🟢 Acer</button>
+    <button class="filter-btn" onclick="filterProducts('samsung',this)">💠 Samsung</button>
+    <button class="filter-btn" onclick="filterProducts('lg',this)">⚪ LG</button>
+    <button class="filter-btn" onclick="filterProducts('gaming',this)">🎮 Gaming</button>
+    <button class="filter-btn" onclick="filterProducts('business',this)">💼 Business</button>
+    <button class="filter-btn" onclick="filterProducts('budget',this)">💰 Giá tốt</button>
+  </div>
+
+  <!-- PRODUCTS GRID -->
+  <div class="products-grid" id="productsGrid"></div>
+
+  <!-- CTA -->
+  <div style="text-align:center;padding:48px 0 0">
+    <div class="hero-badge" style="margin-bottom:16px">
+      <div class="hero-pulse"></div>
+      Đã sẵn sàng so sánh?
+    </div>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:.92rem">
+      Sau khi tìm hiểu xong các laptop, hãy tiến hành phân tích AHP để chọn máy tốt nhất!
+    </p>
+    <a href="ahp.html" class="btn btn-primary" style="font-size:.95rem;padding:14px 32px">
+      🧮 Bắt đầu phân tích AHP →
+    </a>
+  </div>
+
+</main>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+    <p style="white-space:nowrap">🆚 Đã chọn: <strong id="selectedCount">0</strong>/5</p>
+    <div class="compare-chips" id="compareChips"></div>
+    <span id="compareWarning" style="display:none;color:#f59e0b;font-size:.8rem;font-weight:700">⚠️ Cần chọn đúng 5 laptop!</span>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button class="btn btn-secondary btn-sm" onclick="selectAll()">✅ Chọn tất cả</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Bỏ chọn</button>
+    <button class="btn btn-primary btn-sm" id="goAHPBtn" onclick="goToAHP()">Phân tích AHP →</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">AHP Pro</div>
+  <p>Đồ án · <span>Hệ hỗ trợ ra quyết định</span> · AHP Method · © 2025</p>
+  <div class="footer-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="ahp.html">Thực hiện AHP</a>
+    <a href="result.html">Kết quả</a>
+    <a href="sensitivity.html">Độ nhạy</a>
+    <a href="report.html">Báo cáo</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+/* ================================================================
+   PRODUCTS PAGE – DATA & RENDER
+   ================================================================ */
+
+
+/* Dữ liệu 100 laptop */
+/* PRODUCT_DATA moved to script.js */
+
+let selectedProducts = new Set(JSON.parse(localStorage.getItem('ahp_selected') || '[]'));
+let currentFilter = 'all';
+
+/* ── Render star rating ── */
+function renderStars(n) {
+  let s = '';
+  for (let i = 1; i <= 5; i++)
+    s += `<span class="${i <= n ? 'star-fill' : 'star-empty'}">★</span>`;
+  return s;
+}
+
+/* ── Render một product card ── */
+function renderCard(p) {
+  const isSelected = selectedProducts.has(p.id);
+  return `
+  <div class="product-card ${isSelected ? 'selected' : ''}" id="pcard_${p.id}"
+       data-cat="${p.category.join(' ')}" style="animation-delay:${p.id * .08}s">
+    <div class="product-img-wrap">
+      <img src="${p.img}" alt="${p.name}" loading="lazy" />
+      <div class="product-badge ${p.badge.cls}">${p.badge.text}</div>
+    </div>
+    <div class="product-body">
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">${p.price}</div>
+      <div class="product-desc">${p.desc}</div>
+
+      <div class="product-specs">
+        <div class="spec-row">
+          <span class="spec-label">⚡ CPU</span>
+          <span class="spec-value">${p.cpu}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">🧠 RAM</span>
+          <span class="spec-value">${p.ram}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">💾 SSD</span>
+          <span class="spec-value">${p.ssd}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">🎨 GPU</span>
+          <span class="spec-value">${p.gpu}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">🔋 Pin</span>
+          <span class="spec-value">${p.pin}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">⚖️ Trọng lượng</span>
+          <span class="spec-value">${p.weight}</span>
+        </div>
+      </div>
+
+      <!-- Ratings -->
+      <div class="spec-detail-wrap">
+        <div class="spec-detail-title">Đánh giá nhanh</div>
+        <div class="rating-row">
+          <span class="rating-label">⚡ Hiệu năng</span>
+          <div class="rating-stars">${renderStars(p.ratings.performance)}</div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">🔋 Pin</span>
+          <div class="rating-stars">${renderStars(p.ratings.battery)}</div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">🛡️ Độ bền</span>
+          <div class="rating-stars">${renderStars(p.ratings.durability)}</div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">🔧 Nâng cấp</span>
+          <div class="rating-stars">${renderStars(p.ratings.upgrade)}</div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">💰 Giá trị</span>
+          <div class="rating-stars">${renderStars(p.ratings.value)}</div>
+        </div>
+      </div>
+
+      <div class="product-actions" style="margin-top:14px">
+        <button class="btn-select ${isSelected ? 'selected-btn' : ''}"
+                id="selbtn_${p.id}"
+                onclick="toggleSelect(${p.id})">
+          ${isSelected ? '✅ Đã chọn' : '+ Chọn so sánh'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── Render all products ── */
+function renderProducts(filter) {
+  const grid = document.getElementById('productsGrid');
+  const filtered = filter === 'all'
+    ? PRODUCT_DATA
+    : PRODUCT_DATA.filter(p => p.category.includes(filter));
+  grid.innerHTML = filtered.map(renderCard).join('');
+}
+
+/* ── Filter ── */
+function filterProducts(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts(cat);
+}
+
+/* ── Toggle select ── */
+function toggleSelect(id) {
+  if (selectedProducts.has(id)) {
+    selectedProducts.delete(id);
+  } else {
+    selectedProducts.add(id);
+  }
+  localStorage.setItem('ahp_selected', JSON.stringify([...selectedProducts]));
+  updateCard(id);
+  updateCompareBar();
+}
+
+function updateCard(id) {
+  const card = document.getElementById(`pcard_${id}`);
+  const btn  = document.getElementById(`selbtn_${id}`);
+  const sel  = selectedProducts.has(id);
+  if (card) card.classList.toggle('selected', sel);
+  if (btn)  { btn.classList.toggle('selected-btn', sel); btn.textContent = sel ? '✅ Đã chọn' : '+ Chọn so sánh'; }
+}
+
+function updateCompareBar() {
+  const bar    = document.getElementById('compareBar');
+  const chips  = document.getElementById('compareChips');
+  const count  = document.getElementById('selectedCount');
+  const warn   = document.getElementById('compareWarning');
+  const goBtn  = document.getElementById('goAHPBtn');
+  const names  = [...selectedProducts].map(id => PRODUCT_DATA[id]?.name || '');
+  chips.innerHTML = names.map(n => `<div class="compare-chip">${n}</div>`).join('');
+  bar.classList.toggle('show', selectedProducts.size > 0);
+  if (count) count.textContent = selectedProducts.size;
+  const exact5 = selectedProducts.size === 5;
+  if (warn) warn.style.display = (selectedProducts.size > 0 && !exact5) ? 'block' : 'none';
+  if (goBtn) {
+    goBtn.disabled = !exact5;
+    goBtn.style.opacity = exact5 ? '1' : '0.5';
+    goBtn.style.cursor = exact5 ? 'pointer' : 'not-allowed';
+    goBtn.textContent = exact5 ? 'Phân tích AHP →' : `Chọn thêm ${5 - selectedProducts.size}`;
+  }
+}
+
+function selectAll() {
+  PRODUCT_DATA.forEach(p => selectedProducts.add(p.id));
+  localStorage.setItem('ahp_selected', JSON.stringify([...selectedProducts]));
+  renderProducts(currentFilter);
+  updateCompareBar();
+}
+
+function clearAll() {
+  selectedProducts.clear();
+  localStorage.setItem('ahp_selected', JSON.stringify([]));
+  renderProducts(currentFilter);
+  updateCompareBar();
+}
+
+/* ── Chuyển sang AHP, xoá kết quả cũ để tính lại ── */
+function goToAHP() {
+  if (selectedProducts.size !== 5) {
+    alert(`⚠️ Vui lòng chọn đúng 5 laptop để phân tích AHP!\nHiện đang chọn: ${selectedProducts.size} laptop.\nNhấn "✅ Chọn tất cả" để chọn nhanh cả 5.`);
+    return;
+  }
+  // Xóa kết quả cũ vì danh sách laptop thay đổi
+  localStorage.removeItem('ahp_results');
+  localStorage.removeItem('ahp_cMatrix');
+  localStorage.removeItem('ahp_scores');
+  localStorage.removeItem('ahp_cWeights');
+  localStorage.removeItem('ahp_altWeightsAll');
+  // Đánh dấu để ahp.html tự động điền dữ liệu mẫu
+  localStorage.setItem('ahp_autoload', '1');
+  window.location.href = 'ahp.html';
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderProducts('all');
+  updateCompareBar();
+});
+</script>
+</body>
+</html>

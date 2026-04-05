@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHP Pro – Hệ thống chọn Laptop cho Sinh Viên IT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Extra styles chỉ cho trang chủ ── */
+    .hero-home { padding: 90px 0 70px; }
+
+    .tech-badge-row {
+      display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .tech-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: .78rem; font-weight: 600; color: var(--text2);
+      transition: all .25s;
+    }
+    .tech-badge:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Feature highlight strip */
+    .highlight-strip {
+      background: linear-gradient(135deg, rgba(79,142,247,.08), rgba(167,139,250,.08));
+      border: 1px solid rgba(79,142,247,.2);
+      border-radius: var(--radius); padding: 32px 36px;
+      display: flex; align-items: center; gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+    .hs-text { flex: 1; min-width: 220px; }
+    .hs-text h2 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .hs-text p { color: var(--text2); font-size: .9rem; line-height: 1.7; }
+
+    /* CTA Banner */
+    .cta-banner {
+      text-align: center; padding: 64px 0 0;
+    }
+    .cta-banner h2 { font-family:'Syne',sans-serif; font-size: clamp(1.4rem,3vw,2rem); font-weight:800; margin-bottom:12px; }
+    .cta-banner p { color: var(--text2); font-size:.92rem; margin-bottom:28px; max-width:480px; margin-left:auto; margin-right:auto; }
+
+    /* Animated counter */
+    .counter-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 16px; margin-bottom: 52px;
+    }
+    .counter-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 20px;
+      text-align: center;
+    }
+    .counter-val {
+      font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .counter-label { font-size: .76rem; color: var(--muted); margin-top: 4px; font-weight: 600; }
+    @media (max-width: 600px) { .counter-grid { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body class="page-enter">
+
+<!-- LOADING -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Đang khởi động AHP Pro<span class="loading-dots"></span></div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="topnav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">📊</div>
+    AHP Pro
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html"    class="nav-link active">Trang chủ</a>
+    <a href="products.html" class="nav-link">Laptop</a>
+    <a href="ahp.html"      class="nav-link">Thực hiện AHP</a>
+    <a href="result.html"   class="nav-link">Kết quả</a>
+    <a href="sensitivity.html" class="nav-link">Độ nhạy</a>
+    <a href="report.html"   class="nav-link">Báo cáo</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeToggle">☀️ Light</button>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<header class="hero hero-home">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-pulse"></div>
+      Hệ hỗ trợ ra quyết định · Phương pháp Saaty · AHP
+    </div>
+    <h1>Chọn Laptop Thông Minh<br>Bằng Khoa Học Dữ Liệu</h1>
+    <p class="subtitle">
+      Ứng dụng Analytic Hierarchy Process (AHP) — phân tích đa tiêu chí khoa học,
+      khách quan với kiểm định nhất quán CR cho sinh viên IT.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-chip"><div class="dot" style="background:var(--accent)"></div>5 Tiêu chí đánh giá</div>
+      <div class="stat-chip"><div class="dot" style="background:var(--accent2)"></div>5 Laptop so sánh</div>
+      <div class="stat-chip"><div class="dot" style="background:var(--accent3)"></div>CR &lt; 0.1 kiểm định</div>
+      <div class="stat-chip"><div class="dot" style="background:var(--success)"></div>Xuất PDF &amp; Excel</div>
+    </div>
+    <div class="hero-cta">
+      <a href="ahp.html"      class="btn btn-primary">🚀 Bắt đầu phân tích</a>
+      <a href="products.html" class="btn btn-secondary">💻 Xem danh sách Laptop</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+  <!-- COUNTER STATS -->
+  <div class="counter-grid reveal">
+    <div class="counter-card">
+      <div class="counter-val">5</div>
+      <div class="counter-label">Laptop phổ biến</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-val">5</div>
+      <div class="counter-label">Tiêu chí đánh giá</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-val">CR</div>
+      <div class="counter-label">Kiểm định &lt; 0.1</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-val">∞</div>
+      <div class="counter-label">Kịch bản tùy chỉnh</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="reveal">
+    <div class="section-label">⚡ Tính năng hệ thống</div>
+    <div class="feature-grid">
+      <div class="feature-card anim-delay-1">
+        <div class="feature-icon fi-blue">🧮</div>
+        <h3>Toán học AHP chuẩn xác</h3>
+        <p>Tính tự động ma trận chuẩn hóa, vector trọng số, λmax, CI, CR theo công thức Saaty chính thống.</p>
+      </div>
+      <div class="feature-card anim-delay-2">
+        <div class="feature-icon fi-teal">📊</div>
+        <h3>Biểu đồ trực quan</h3>
+        <p>Bar chart & Radar chart tương tác để so sánh điểm số và phân tích đa tiêu chí trực quan.</p>
+      </div>
+      <div class="feature-card anim-delay-3">
+        <div class="feature-icon fi-purple">✅</div>
+        <h3>Kiểm định nhất quán CR</h3>
+        <p>Tự động kiểm tra CR &lt; 0.1. Cảnh báo khi đánh giá không nhất quán để đảm bảo độ tin cậy.</p>
+      </div>
+      <div class="feature-card anim-delay-1">
+        <div class="feature-icon fi-pink">📄</div>
+        <h3>Xuất báo cáo PDF</h3>
+        <p>Tạo báo cáo chuyên nghiệp định dạng PDF với đầy đủ ma trận, công thức và kết quả phân tích.</p>
+      </div>
+      <div class="feature-card anim-delay-2">
+        <div class="feature-icon fi-orange">📋</div>
+        <h3>Xuất file Excel</h3>
+        <p>Lưu toàn bộ dữ liệu ra nhiều sheet Excel: xếp hạng, trọng số, ma trận và kiểm định CR.</p>
+      </div>
+      <div class="feature-card anim-delay-3">
+        <div class="feature-icon fi-green">💾</div>
+        <h3>Lưu trữ tự động</h3>
+        <p>Dữ liệu được lưu localStorage. Refresh trang không mất dữ liệu, tiếp tục làm việc dễ dàng.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HIGHLIGHT STRIP -->
+  <div class="highlight-strip reveal">
+    <div class="hs-text">
+      <h2>🎯 Tại sao dùng AHP cho quyết định chọn Laptop?</h2>
+      <p>
+        Chọn laptop là bài toán đa tiêu chí phức tạp: <strong style="color:var(--accent)">hiệu năng</strong>,
+        <strong style="color:var(--accent2)">giá cả</strong>,
+        <strong style="color:var(--accent3)">độ bền</strong>,
+        <strong style="color:var(--accent4)">pin</strong> và
+        <strong style="color:var(--accent5)">khả năng nâng cấp</strong> thường mâu thuẫn nhau.
+        AHP giúp lượng hóa từng tiêu chí một cách khoa học và đưa ra đề xuất có căn cứ toán học rõ ràng.
+      </p>
+    </div>
+    <a href="ahp.html" class="btn btn-primary" style="flex-shrink:0">
+      Thực hiện ngay →
+    </a>
+  </div>
+
+  <!-- PROCESS FLOW -->
+  <section class="reveal">
+    <div class="section-label">🔄 Quy trình thực hiện</div>
+    <div class="process-flow">
+      <div class="process-step">
+        <div class="process-num">1</div>
+        <h4>Xem Laptop</h4>
+        <p>Khám phá 5 laptop phổ biến cho SV IT</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">2</div>
+        <h4>So sánh tiêu chí</h4>
+        <p>Nhập ma trận 5×5 theo thang Saaty</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">3</div>
+        <h4>So sánh phương án</h4>
+        <p>Đánh giá laptop theo từng tiêu chí</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">4</div>
+        <h4>Tính AHP</h4>
+        <p>Hệ thống tính CR, trọng số, điểm</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">5</div>
+        <h4>Kết quả</h4>
+        <p>Xem xếp hạng & biểu đồ phân tích</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">6</div>
+        <h4>Xuất báo cáo</h4>
+        <p>Tải PDF / Excel cho đồ án</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRITERIA & LAPTOPS OVERVIEW -->
+  <section class="reveal">
+    <div class="section-label">📋 Tổng quan bài toán</div>
+    <div class="grid-2">
+      <div class="card">
+        <h2 style="margin-bottom:14px">📊 5 Tiêu chí đánh giá</h2>
+        <div class="tag-list" id="criteriaList"></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:14px">💻 5 Laptop so sánh</h2>
+        <div class="tag-list" id="laptopList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAATY SCALE QUICK REF -->
+  <section class="reveal">
+    <div class="section-label">📐 Thang đo Saaty (1–9)</div>
+    <div class="grid-2">
+      <div class="card">
+        <h2 style="margin-bottom:14px">Ý nghĩa thang điểm so sánh</h2>
+        <div class="matrix-wrapper">
+          <table class="scale-table">
+            <thead><tr><th>Giá trị</th><th>Ý nghĩa</th></tr></thead>
+            <tbody>
+              <tr><td>1</td>        <td>Quan trọng bằng nhau</td></tr>
+              <tr><td>3</td>        <td>Quan trọng hơn một chút (slightly)</td></tr>
+              <tr><td>5</td>        <td>Quan trọng hơn rõ ràng (strongly)</td></tr>
+              <tr><td>7</td>        <td>Rất quan trọng hơn (very strongly)</td></tr>
+              <tr><td>9</td>        <td>Cực kỳ quan trọng hơn (extremely)</td></tr>
+              <tr><td>2, 4, 6, 8</td><td>Giá trị trung gian giữa các mức</td></tr>
+              <tr><td>1/3, 1/5…</td><td>Ngược lại (B quan trọng hơn A)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:14px">Bảng Random Index RI (Saaty)</h2>
+        <p style="color:var(--text2);font-size:.84rem;margin-bottom:12px">
+          Dùng để tính <strong style="color:var(--accent)">CR = CI / RI</strong>.
+          CR &lt; 0.1 → ma trận nhất quán ✔
+        </p>
+        <div class="matrix-wrapper">
+          <table class="ri-table">
+            <thead>
+              <tr>
+                <th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--accent);font-weight:700">RI</td>
+                <td>0</td><td>0</td><td>0.58</td><td>0.90</td><td>1.12</td>
+                <td>1.24</td><td>1.32</td><td>1.41</td><td>1.45</td><td>1.49</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="divider"></div>
+        <div class="math-steps">
+          <div class="math-step">
+            <div class="math-num">λ</div>
+            <div class="math-body">
+              <h4>CI = (λmax − n) / (n − 1)</h4>
+              <p>Consistency Index đo độ lệch so với nhất quán tuyệt đối.</p>
+            </div>
+          </div>
+          <div class="math-step">
+            <div class="math-num">CR</div>
+            <div class="math-body">
+              <h4>CR = CI / RI(n)</h4>
+              <p>CR &lt; 0.1 → kết quả đáng tin cậy. CR ≥ 0.1 → cần xem lại đánh giá.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner reveal">
+    <div class="hero-badge" style="margin-bottom:18px">
+      <div class="hero-pulse"></div>
+      Sẵn sàng phân tích
+    </div>
+    <h2>Bắt đầu phân tích AHP ngay!</h2>
+    <p>Chỉ cần vài phút để có kết quả khoa học, chính xác và xuất báo cáo đồ án.</p>
+    <div class="hero-cta">
+      <a href="ahp.html"      class="btn btn-primary">🧮 Thực hiện AHP</a>
+      <a href="products.html" class="btn btn-secondary">💻 Xem Laptop</a>
+      <a href="report.html"   class="btn btn-ghost">📄 Xem báo cáo mẫu</a>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AHP Pro</div>
+  <p>Đồ án · <span>Hệ hỗ trợ ra quyết định</span> · Analytic Hierarchy Process · Thomas L. Saaty (1970)</p>
+  <p style="margin-top:6px;font-size:.74rem;color:var(--muted)">
+    CR = CI / RI · Kết quả mang tính tham khảo học thuật · © 2025
+  </p>
+  <div class="footer-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="products.html">Laptop</a>
+    <a href="ahp.html">Thực hiện AHP</a>
+    <a href="result.html">Kết quả</a>
+    <a href="sensitivity.html">Độ nhạy</a>
+    <a href="report.html">Báo cáo</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  /* ── Scroll reveal ── */
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  /* ── Render criteria & laptop lists ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('criteriaList').innerHTML = CRITERIA.map((c,i) =>
+      `<div class="tag">
+        <span class="tag-icon">${CRITERIA_ICONS[i]}</span>
+        <div>
+          <strong>${c}</strong>
+          <span style="color:var(--muted);font-size:.78rem"> — ${CRITERIA_DESC[i]}</span>
+        </div>
+      </div>`
+    ).join('');
+    document.getElementById('laptopList').innerHTML = LAPTOPS.map((l,i) =>
+      `<div class="tag">
+        <span class="tag-icon">${LAPTOP_ICONS[i]}</span>
+        <strong>${l}</strong>
+      </div>`
+    ).join('');
+  });
+</script>
+</body>
+</html>

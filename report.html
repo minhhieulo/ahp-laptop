@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo cáo chi tiết AHP – AHP Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Extra report styles */
+    .report-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow2);
+    }
+    .report-section h2 {
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--accent2); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 9px;
+    }
+
+    .formula-box {
+      background: rgba(79,142,247,.06);
+      border: 1px solid rgba(79,142,247,.2);
+      border-radius: 10px; padding: 16px 18px;
+      margin: 12px 0;
+    }
+    .formula-title {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    .formula-body {
+      font-family: 'Space Mono', monospace; font-size: .86rem;
+      color: var(--accent2); line-height: 1.8;
+    }
+
+    .var-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .var-chip {
+      padding: 4px 12px; border-radius: 7px;
+      background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.25);
+      font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--accent3);
+    }
+
+    .toc-list {
+      list-style: none;
+    }
+    .toc-list li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 14px; border-radius: 9px;
+      font-size: .86rem; color: var(--text2);
+      border: 1px solid transparent;
+      cursor: pointer; transition: all .2s;
+    }
+    .toc-list li:hover { background: rgba(79,142,247,.07); border-color: rgba(79,142,247,.2); color: var(--accent); }
+    .toc-num { width: 24px; height: 24px; border-radius: 50%; display:flex;align-items:center;justify-content:center; background:rgba(79,142,247,.12); color:var(--accent); font-size:.72rem; font-weight:700; flex-shrink:0; }
+
+    .matrix-label {
+      font-size: .72rem; color: var(--muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
+    }
+
+    .cr-explanation {
+      padding: 14px; border-radius: 10px; margin-top: 12px; font-size: .85rem;
+    }
+    .cr-explanation.good { background:rgba(16,217,136,.07); border:1px solid rgba(16,217,136,.25); color:var(--success); }
+    .cr-explanation.bad  { background:rgba(240,82,82,.07);  border:1px solid rgba(240,82,82,.25);  color:var(--danger);  }
+
+    .no-report-state { text-align:center; padding:60px 0; }
+    .no-report-state .nd-icon { font-size:4rem; margin-bottom:16px; }
+    .no-report-state h2 { font-family:'Syne',sans-serif; font-size:1.2rem; margin-bottom:10px; }
+    .no-report-state p  { color:var(--text2); font-size:.88rem; margin-bottom:20px; }
+  </style>
+</head>
+<body class="page-enter">
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Đang tải báo cáo<span class="loading-dots"></span></div>
+</div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">📊</div>
+    AHP Pro
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html"    class="nav-link">Trang chủ</a>
+    <a href="products.html" class="nav-link">Laptop</a>
+    <a href="ahp.html"      class="nav-link">Thực hiện AHP</a>
+    <a href="result.html"   class="nav-link">Kết quả</a>
+    <a href="sensitivity.html" class="nav-link">Độ nhạy</a>
+    <a href="report.html"   class="nav-link active">Báo cáo</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeToggle">☀️ Light</button>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" style="padding:52px 0 32px;text-align:center">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-pulse"></div>
+      Báo cáo chi tiết · Giải thích toán học AHP đầy đủ
+    </div>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.8rem)">Báo Cáo<br>Chi Tiết AHP</h1>
+    <p class="subtitle">Đầy đủ ma trận, công thức tính toán, kiểm định CR và giải thích ý nghĩa
+      từng bước trong phương pháp AHP.</p>
+    <div class="hero-cta" style="margin-top:0">
+      <button class="btn btn-pdf"   onclick="exportPDF()">📄 Xuất PDF</button>
+      <button class="btn btn-excel" onclick="exportExcel()">📊 Xuất Excel</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- NO DATA STATE -->
+  <div id="noReportState" class="no-report-state hidden">
+    <div class="nd-icon">📋</div>
+    <h2>Chưa có dữ liệu để hiển thị báo cáo</h2>
+    <p>Hãy thực hiện phân tích AHP hoặc dùng dữ liệu mẫu để xem báo cáo chi tiết.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="ahp.html" class="btn btn-primary">🧮 Thực hiện AHP</a>
+      <button class="btn btn-secondary" onclick="initSampleReport()">📥 Dùng dữ liệu mẫu</button>
+    </div>
+  </div>
+
+  <!-- REPORT CONTENT -->
+  <div id="reportContent" class="hidden">
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="report-section">
+      <h2>📑 Mục lục báo cáo</h2>
+      <ul class="toc-list">
+        <li onclick="scrollTo('#sec-math')"><div class="toc-num">1</div>Giải thích toán học AHP (7 bước)</li>
+        <li onclick="scrollTo('#sec-criteria-matrix')"><div class="toc-num">2</div>Ma trận so sánh tiêu chí gốc</li>
+        <li onclick="scrollTo('#sec-criteria-norm')"><div class="toc-num">3</div>Ma trận chuẩn hóa &amp; vector trọng số</li>
+        <li onclick="scrollTo('#sec-lambda')"><div class="toc-num">4</div>Tính λmax, CI, CR tiêu chí</li>
+        <li onclick="scrollTo('#sec-alt-matrices')"><div class="toc-num">5</div>Ma trận phương án theo từng tiêu chí</li>
+        <li onclick="scrollTo('#sec-final-score')"><div class="toc-num">6</div>Điểm tổng hợp &amp; xếp hạng cuối cùng</li>
+        <li onclick="scrollTo('#sec-ri-table')"><div class="toc-num">7</div>Bảng RI chuẩn của Saaty</li>
+        <li onclick="scrollTo('#sec-references')"><div class="toc-num">8</div>Tài liệu tham khảo</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1: MATH EXPLANATION -->
+    <div class="report-section" id="sec-math">
+      <h2>🧮 1. Giải thích toán học AHP (7 bước)</h2>
+      <div class="math-steps">
+        <div class="math-step">
+          <div class="math-num">1</div>
+          <div class="math-body">
+            <h4>Xây dựng ma trận so sánh cặp A(n×n)</h4>
+            <p>Mỗi phần tử a<sub>ij</sub> biểu diễn mức độ quan trọng của tiêu chí/phương án i so với j
+              theo thang Saaty 1–9. Đường chéo chính a<sub>ii</sub> = 1. Tính nhất quán: a<sub>ji</sub> = 1/a<sub>ij</sub>.</p>
+            <div class="math-formula">A = [a<sub>ij</sub>] &nbsp;·&nbsp; a<sub>ji</sub> = 1/a<sub>ij</sub> &nbsp;·&nbsp; a<sub>ii</sub> = 1</div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">2</div>
+          <div class="math-body">
+            <h4>Chuẩn hóa ma trận (Normalize)</h4>
+            <p>Chia mỗi phần tử a<sub>ij</sub> cho tổng cột j (Σ<sub>k</sub>a<sub>kj</sub>). Ma trận chuẩn hóa
+              có tổng mỗi cột = 1.</p>
+            <div class="math-formula">ā<sub>ij</sub> = a<sub>ij</sub> / Σ<sub>k=1..n</sub> a<sub>kj</sub></div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">3</div>
+          <div class="math-body">
+            <h4>Tính vector trọng số (Priority Vector)</h4>
+            <p>Trọng số w<sub>i</sub> = trung bình cộng của hàng i trong ma trận chuẩn hóa. Tổng tất cả trọng số = 1.</p>
+            <div class="math-formula">w<sub>i</sub> = (1/n) · Σ<sub>j=1..n</sub> ā<sub>ij</sub></div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">4</div>
+          <div class="math-body">
+            <h4>Tính λmax (Eigenvalue lớn nhất xấp xỉ)</h4>
+            <p>Nhân ma trận A × vector w → vector Aw. Chia từng phần tử (Aw)<sub>i</sub> cho w<sub>i</sub>. λmax = trung bình các tỷ số này.</p>
+            <div class="math-formula">λmax = (1/n) · Σ<sub>i=1..n</sub> [(Aw)<sub>i</sub> / w<sub>i</sub>]</div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">5</div>
+          <div class="math-body">
+            <h4>Tính CI – Consistency Index</h4>
+            <p>Đo độ lệch so với ma trận hoàn toàn nhất quán. CI = 0 khi nhất quán tuyệt đối (λmax = n).</p>
+            <div class="math-formula">CI = (λmax − n) / (n − 1)</div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">6</div>
+          <div class="math-body">
+            <h4>Tính CR – Consistency Ratio</h4>
+            <p>So sánh CI với RI theo bảng Saaty. <strong style="color:var(--success)">CR &lt; 0.1</strong>
+              → đánh giá nhất quán, kết quả tin cậy. CR ≥ 0.1 → cần xem lại ma trận.</p>
+            <div class="math-formula">CR = CI / RI(n)</div>
+            <div class="var-row">
+              <span class="var-chip">RI(3) = 0.58</span>
+              <span class="var-chip">RI(4) = 0.90</span>
+              <span class="var-chip">RI(5) = 1.12</span>
+              <span class="var-chip">RI(6) = 1.24</span>
+            </div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">7</div>
+          <div class="math-body">
+            <h4>Điểm tổng hợp cuối cùng (Synthesize)</h4>
+            <p>Score<sub>i</sub> = Σ<sub>k</sub> (trọng số tiêu chí k) × (trọng số phương án i theo tiêu chí k)</p>
+            <div class="math-formula">Score<sub>i</sub> = Σ<sub>k=1..m</sub> w<sub>k</sub> · p<sub>ki</sub></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: CRITERIA ORIGINAL MATRIX -->
+    <div class="report-section" id="sec-criteria-matrix">
+      <h2>📋 2. Ma trận so sánh tiêu chí gốc</h2>
+      <div class="matrix-label">Ma trận A – Giá trị người dùng nhập (n = 5)</div>
+      <div class="report-matrix-wrap">
+        <table class="report-matrix" id="reportOrigMatrix"></table>
+      </div>
+    </div>
+
+    <!-- SECTION 3: NORMALIZED MATRIX -->
+    <div class="report-section" id="sec-criteria-norm">
+      <h2>📊 3. Ma trận chuẩn hóa &amp; Vector trọng số</h2>
+      <div class="matrix-label">Ma trận Ā (Normalized) – Tổng mỗi cột = 1</div>
+      <div class="report-matrix-wrap">
+        <table class="report-matrix" id="reportNormMatrix"></table>
+      </div>
+      <div style="margin-top:20px">
+        <div class="matrix-label">Vector trọng số w = (trung bình hàng)</div>
+        <div class="report-matrix-wrap">
+          <table class="report-matrix" id="reportWeightVec"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: LAMBDA, CI, CR -->
+    <div class="report-section" id="sec-lambda">
+      <h2>🔢 4. Tính λmax, CI, CR tiêu chí</h2>
+      <div id="reportLambda"></div>
+    </div>
+
+    <!-- SECTION 5: ALT MATRICES -->
+    <div class="report-section" id="sec-alt-matrices">
+      <h2>📐 5. Ma trận phương án theo từng tiêu chí</h2>
+      <div id="reportAltMatrices"></div>
+    </div>
+
+    <!-- SECTION 6: FINAL SCORES -->
+    <div class="report-section" id="sec-final-score">
+      <h2>🏆 6. Điểm tổng hợp &amp; Xếp hạng cuối cùng</h2>
+      <div class="formula-box">
+        <div class="formula-title">Công thức tổng hợp</div>
+        <div class="formula-body">Score<sub>i</sub> = Σ<sub>k</sub> w<sub>k</sub> × p<sub>ki</sub></div>
+      </div>
+      <div class="report-matrix-wrap" style="margin-top:16px">
+        <table class="report-matrix" id="reportFinalTable"></table>
+      </div>
+    </div>
+
+    <!-- SECTION 7: RI TABLE -->
+    <div class="report-section" id="sec-ri-table">
+      <h2>📐 7. Bảng Random Index RI (Saaty, 1980)</h2>
+      <div class="matrix-wrapper" style="margin-bottom:16px">
+        <table class="ri-table">
+          <thead>
+            <tr>
+              <th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+              <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--accent);font-weight:700;font-family:'Space Mono',monospace">RI</td>
+              <td>0</td><td>0</td><td>0.58</td><td>0.90</td><td>1.12</td>
+              <td>1.24</td><td>1.32</td><td>1.41</td><td>1.45</td><td>1.49</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="margin-top:0">
+        <h2 style="margin-bottom:12px;font-size:.96rem">📖 Giải thích ý nghĩa CR</h2>
+        <div class="math-steps">
+          <div class="math-step">
+            <div class="math-num" style="background:var(--success)">✓</div>
+            <div class="math-body">
+              <h4>CR &lt; 0.1 → Ma trận nhất quán</h4>
+              <p>Các đánh giá so sánh cặp có tính logic và nhất quán. Kết quả xếp hạng đáng tin cậy và có thể sử dụng trong quyết định.</p>
+            </div>
+          </div>
+          <div class="math-step">
+            <div class="math-num" style="background:var(--warn)">⚠</div>
+            <div class="math-body">
+              <h4>0.1 ≤ CR &lt; 0.2 → Cần xem xét lại</h4>
+              <p>Có sự không nhất quán nhất định. Nên xem lại một số đánh giá, đặc biệt các cặp có sự mâu thuẫn rõ ràng.</p>
+            </div>
+          </div>
+          <div class="math-step">
+            <div class="math-num" style="background:var(--danger)">✗</div>
+            <div class="math-body">
+              <h4>CR ≥ 0.2 → Không chấp nhận được</h4>
+              <p>Đánh giá quá mâu thuẫn và không đáng tin cậy. Cần xây dựng lại toàn bộ ma trận so sánh từ đầu.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 8: REFERENCES -->
+    <div class="report-section" id="sec-references">
+      <h2>📚 8. Tài liệu tham khảo</h2>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="formula-box">
+          <div class="formula-title">Tài liệu gốc</div>
+          <div style="font-size:.88rem;line-height:1.9;color:var(--text2)">
+            <p>[1] <strong>Saaty, T. L.</strong> (1980). <em>The Analytic Hierarchy Process: Planning, Priority Setting, Resource Allocation.</em> McGraw-Hill, New York.</p>
+            <p>[2] <strong>Saaty, T. L.</strong> (1990). How to make a decision: The analytic hierarchy process. <em>European Journal of Operational Research</em>, 48(1), 9–26. <a href="https://doi.org/10.1016/0377-2217(90)90057-I" target="_blank" style="color:var(--accent)">DOI:10.1016/0377-2217(90)90057-I</a></p>
+            <p>[3] <strong>Wind, Y., &amp; Saaty, T. L.</strong> (1980). Marketing applications of the analytic hierarchy process. <em>Management Science</em>, 26(7), 641–658. <a href="https://doi.org/10.1287/mnsc.26.7.641" target="_blank" style="color:var(--accent)">DOI:10.1287/mnsc.26.7.641</a></p>
+          </div>
+        </div>
+        <div class="formula-box">
+          <div class="formula-title">Bảng Random Index – Saaty (1980)</div>
+          <div style="font-size:.85rem;color:var(--text2)">
+            Giá trị RI được xác định bằng thực nghiệm từ 500 ma trận ngẫu nhiên.<br>
+            n = 1–10: RI = 0, 0, 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORT BUTTONS -->
+    <div class="btn-row">
+      <button class="btn btn-pdf"   onclick="exportPDF()">📄 Xuất báo cáo PDF</button>
+      <button class="btn btn-excel" onclick="exportExcel()">📊 Xuất Excel</button>
+      <a href="result.html" class="btn btn-ghost">📈 Xem kết quả biểu đồ</a>
+    </div>
+
+  </div><!-- /reportContent -->
+
+</div>
+
+<footer>
+  <div class="footer-logo">AHP Pro</div>
+  <p>Đồ án · <span>Hệ hỗ trợ ra quyết định</span> · Phương pháp Saaty · © 2025</p>
+  <p style="margin-top:6px;font-size:.74rem">Nguồn: T.L. Saaty – "The Analytic Hierarchy Process" (1980) · McGraw-Hill</p>
+  <div class="footer-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="products.html">Laptop</a>
+    <a href="ahp.html">Thực hiện AHP</a>
+    <a href="result.html">Kết quả</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+/* ================================================================
+   REPORT PAGE
+   ================================================================ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = JSON.parse(localStorage.getItem('ahp_results') || 'null');
+  if (saved && saved.ranked && saved.ranked.length) {
+    document.getElementById('reportContent').classList.remove('hidden');
+    renderReport(saved);
+  } else {
+    document.getElementById('noReportState').classList.remove('hidden');
+  }
+});
+
+function scrollTo(id) {
+  document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderReport(data) {
+  const { ranked, cWeights, altWeightsAll, crs, cMatrix, cNorm, altMatrices, lambdaData } = data;
+
+  // ── 2. Original criteria matrix
+  if (cMatrix) {
+    const hdr = ['', ...CRITERIA];
+    let html = '<tr>' + hdr.map((h, i) => `<th>${i===0?'':CRITERIA_ICONS[i-1]+' '}${h}</th>`).join('') + '</tr>';
+    cMatrix.forEach((row, r) => {
+      html += `<tr><th style="text-align:left">${CRITERIA_ICONS[r]} ${CRITERIA[r]}</th>` +
+        row.map(v => `<td>${v < 1 ? '1/' + Math.round(1/v) : v.toFixed(3)}</td>`).join('') + '</tr>';
+    });
+    document.getElementById('reportOrigMatrix').innerHTML = html;
+  }
+
+  // ── 3. Normalized matrix
+  if (cNorm) {
+    const hdr = ['', ...CRITERIA];
+    let html = '<tr>' + hdr.map((h, i) => `<th>${i===0?'':CRITERIA_ICONS[i-1]+' '}${h}</th>`).join('') + '</tr>';
+    cNorm.forEach((row, r) => {
+      html += `<tr><th style="text-align:left">${CRITERIA_ICONS[r]} ${CRITERIA[r]}</th>` +
+        row.map(v => `<td>${v.toFixed(4)}</td>`).join('') + '</tr>';
+    });
+    document.getElementById('reportNormMatrix').innerHTML = html;
+
+    // Weight vector table
+    let wHtml = '<tr><th>Tiêu chí</th><th>Trọng số (decimal)</th><th>Trọng số (%)</th></tr>';
+    CRITERIA.forEach((c, i) => {
+      wHtml += `<tr>
+        <td style="text-align:left">${CRITERIA_ICONS[i]} ${c}</td>
+        <td class="highlight">${cWeights[i].toFixed(6)}</td>
+        <td>${(cWeights[i]*100).toFixed(3)}%</td>
+      </tr>`;
+    });
+    wHtml += `<tr style="border-top:2px solid var(--border2)">
+      <td><strong>Σ Tổng</strong></td>
+      <td class="highlight">${cWeights.reduce((a,b)=>a+b,0).toFixed(6)}</td>
+      <td>100%</td>
+    </tr>`;
+    document.getElementById('reportWeightVec').innerHTML = wHtml;
+  }
+
+  // ── 4. Lambda, CI, CR
+  if (lambdaData) {
+    const { lambda, ci, cr, n } = lambdaData;
+    const ri = RI_TABLE[n - 1] || 1;
+    const ok = cr <= 0.1;
+    document.getElementById('reportLambda').innerHTML = `
+      <div class="formula-box">
+        <div class="formula-title">Tính toán λmax, CI, CR (n = ${n})</div>
+        <div class="formula-body">
+          λmax = ${lambda.toFixed(6)}<br>
+          CI = (λmax − n) / (n − 1) = (${lambda.toFixed(4)} − ${n}) / (${n} − 1) = <strong>${ci.toFixed(6)}</strong><br>
+          RI(${n}) = ${ri}<br>
+          CR = CI / RI = ${ci.toFixed(6)} / ${ri} = <strong style="color:${ok?'var(--success)':'var(--danger)'}">${cr.toFixed(6)}</strong>
+        </div>
+      </div>
+      <div class="cr-explanation ${ok?'good':'bad'}">
+        ${ok
+          ? `✅ CR = ${cr.toFixed(4)} &lt; 0.1 → Ma trận tiêu chí nhất quán. Kết quả đáng tin cậy!`
+          : `❌ CR = ${cr.toFixed(4)} ≥ 0.1 → Ma trận tiêu chí KHÔNG nhất quán. Cần xem lại các đánh giá!`}
+      </div>`;
+  }
+
+  // ── 5. Alternative matrices
+  if (altMatrices) {
+    let html = '';
+    CRITERIA.forEach((crit, ci) => {
+      const m = altMatrices[ci];
+      if (!m) return;
+      html += `<div style="margin-bottom:28px">
+        <div class="matrix-label">${CRITERIA_ICONS[ci]} Tiêu chí: ${crit}</div>
+        <div class="report-matrix-wrap">
+          <table class="report-matrix">
+            <tr><th></th>${LAPTOPS.map((l,i) => `<th>${LAPTOP_ICONS[i]} ${l.split(' ')[0]}</th>`).join('')}<th>Trọng số</th></tr>
+            ${m.map((row, r) => `
+              <tr>
+                <th style="text-align:left">${LAPTOP_ICONS[r]} ${LAPTOPS[r].split(' ')[0]}</th>
+                ${row.map(v => `<td>${v < 1 ? '1/'+Math.round(1/v) : v.toFixed(3)}</td>`).join('')}
+                <td class="highlight">${(altWeightsAll[ci][r]*100).toFixed(3)}%</td>
+              </tr>`).join('')}
+          </table>
+        </div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:6px">
+          CR = <span style="color:${crs[ci+1]?.cr<=0.1?'var(--success)':'var(--danger)'}">${crs[ci+1]?.cr.toFixed(4) ?? '–'}</span>
+          ${crs[ci+1]?.cr<=0.1 ? '✓ Nhất quán' : '✗ Không nhất quán'}
+        </div>
+      </div>`;
+    });
+    document.getElementById('reportAltMatrices').innerHTML = html;
+  }
+
+  // ── 6. Final scores table
+  const maxScore = ranked[0].score;
+  let fHtml = `<tr><th>Hạng</th><th>Laptop</th>${CRITERIA.map(c=>`<th>${c}</th>`).join('')}<th>Điểm tổng hợp</th></tr>`;
+  ranked.forEach((r, ri) => {
+    fHtml += `<tr>
+      <td style="font-family:'Space Mono',monospace;font-weight:700;color:${ri===0?'#f59e0b':'var(--text2)'}">${ri+1}</td>
+      <td><strong>${LAPTOP_ICONS[r.idx]} ${r.name}</strong></td>
+      ${altWeightsAll.map(aw => `<td>${(aw[r.idx]*100).toFixed(3)}%</td>`).join('')}
+      <td class="highlight">${(r.score*100).toFixed(4)}%</td>
+    </tr>`;
+  });
+  document.getElementById('reportFinalTable').innerHTML = fHtml;
+}
+
+
+function initSampleReport() {
+  loadSampleReport();
+}
+
+function loadSampleReport() {
+  loadSampleCriteria_direct();
+  loadSampleAlternatives_direct();
+  const result = computeAHP_direct();
+  if (result) {
+    localStorage.setItem('ahp_results', JSON.stringify(result));
+    document.getElementById('noReportState').classList.add('hidden');
+    document.getElementById('reportContent').classList.remove('hidden');
+    renderReport(result);
+  }
+}
+</script>
+</body>
+</html>

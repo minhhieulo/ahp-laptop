@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thực hiện AHP – AHP Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .info-banner {
+      background: rgba(79,142,247,.07);
+      border: 1px solid rgba(79,142,247,.2);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 22px;
+      font-size: .85rem; color: var(--text2);
+    }
+    .info-banner .ib-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+    .progress-track {
+      height: 4px; background: var(--border);
+      border-radius: 2px; margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      transition: width .5s cubic-bezier(.22,1,.36,1);
+    }
+    .progress-label {
+      font-size: .74rem; color: var(--muted);
+      text-align: right; margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body class="page-enter">
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Đang tính toán AHP<span class="loading-dots"></span></div>
+</div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">📊</div>
+    AHP Pro
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html"    class="nav-link">Trang chủ</a>
+    <a href="products.html" class="nav-link">Laptop</a>
+    <a href="ahp.html"      class="nav-link active">Thực hiện AHP</a>
+    <a href="result.html"   class="nav-link">Kết quả</a>
+    <a href="sensitivity.html" class="nav-link">Độ nhạy</a>
+    <a href="report.html"   class="nav-link">Báo cáo</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeToggle">☀️ Light</button>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" style="padding:52px 0 32px;text-align:center">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-pulse"></div>
+      Bước 2 & 3 trong quy trình AHP · Nhập ma trận so sánh
+    </div>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.8rem)">Thực Hiện<br>Phân Tích AHP</h1>
+    <p class="subtitle">Nhập ma trận so sánh cặp tiêu chí và phương án. Hệ thống sẽ tự động
+      tính CR, trọng số và điểm tổng hợp.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps">
+    <div class="step done" id="st1"><div class="step-num">✓</div>Giới thiệu</div>
+    <div class="step active" id="st2"><div class="step-num">2</div>Tiêu chí</div>
+    <div class="step" id="st3"><div class="step-num">3</div>Phương án</div>
+    <div class="step" id="st4"><div class="step-num">4</div>Kết quả</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+  <div class="progress-label" id="progressLabel">Hoàn thành: 25%</div>
+
+  <!-- INFO BANNER -->
+  <div class="info-banner">
+    <span class="ib-icon">💡</span>
+    <span>
+      <strong>Hướng dẫn:</strong> Nhập giá trị theo thang Saaty 1–9. Đường chéo = 1,
+      ô xám = nghịch đảo tự động. Nếu B quan trọng hơn A, nhập phân số (1/3, 1/5...).
+      Nhấn <strong style="color:var(--accent)">📥 Dữ liệu mẫu</strong> để xem ví dụ.
+    </span>
+  </div>
+
+  <!-- Laptop count warning (shown when != 5 laptops selected) -->
+  <div id="laptopCountWarning" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-sm);padding:14px 18px;display:none;align-items:center;gap:12px;margin-bottom:22px;font-size:.85rem;color:var(--text2)">
+    <span style="font-size:1.3rem;flex-shrink:0">⚠️</span>
+    <span>
+      <strong style="color:#f59e0b">Đang phân tích với <span id="laptopCountNum">?</span> laptop</strong>
+      thay vì 5. Để phân tích đầy đủ 5 laptop, hãy
+      <a href="products.html" style="color:var(--accent);font-weight:700">quay lại trang Laptop</a>
+      và nhấn <strong>"✅ Chọn tất cả"</strong> rồi bấm "Phân tích AHP".
+    </span>
+  </div>
+
+  <!-- ── SECTION: THIẾT LẬP BÀI TOÁN ── -->
+  <section>
+    <div class="section-label">🗂 Bài toán AHP</div>
+    <div class="problem-grid">
+      <div class="problem-card anim-delay-1">
+        <h3>🎯 Mục tiêu</h3>
+        <div class="tag-list">
+          <div class="tag"><span class="tag-icon">🏆</span><strong>Chọn laptop tốt nhất cho sinh viên IT</strong></div>
+        </div>
+      </div>
+      <div class="problem-card anim-delay-2">
+        <h3>📊 5 Tiêu chí đánh giá</h3>
+        <div class="tag-list" id="criteriaTagList"></div>
+      </div>
+      <div class="problem-card anim-delay-3">
+        <h3>💻 5 Phương án laptop</h3>
+        <div class="tag-list" id="laptopTagList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION: GIẢI THÍCH TOÁN HỌC ── -->
+  <section>
+    <div class="section-label">📐 Công thức AHP</div>
+    <div class="card">
+      <h2 style="margin-bottom:20px">Các bước tính toán tự động</h2>
+      <div class="math-steps">
+        <div class="math-step">
+          <div class="math-num">1</div>
+          <div class="math-body">
+            <h4>Ma trận so sánh cặp A(n×n)</h4>
+            <p>a<sub>ij</sub> = mức độ quan trọng của i so với j. Đường chéo a<sub>ii</sub> = 1, a<sub>ji</sub> = 1/a<sub>ij</sub>.</p>
+            <div class="math-formula">a<sub>ji</sub> = 1 / a<sub>ij</sub> &nbsp;·&nbsp; a<sub>ii</sub> = 1</div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">2</div>
+          <div class="math-body">
+            <h4>Chuẩn hóa &amp; Vector trọng số</h4>
+            <p>Chia mỗi phần tử cho tổng cột. Trọng số = trung bình hàng của ma trận chuẩn hóa.</p>
+            <div class="math-formula">w<sub>i</sub> = (1/n) · Σ<sub>j</sub> (a<sub>ij</sub> / Σ<sub>k</sub>a<sub>kj</sub>)</div>
+          </div>
+        </div>
+        <div class="math-step">
+          <div class="math-num">3</div>
+          <div class="math-body">
+            <h4>λmax → CI → CR</h4>
+            <p>λmax = (1/n)·Σ(Aw)<sub>i</sub>/w<sub>i</sub> &nbsp;|&nbsp; CI=(λmax-n)/(n-1) &nbsp;|&nbsp; CR=CI/RI(n)</p>
+            <div class="math-formula">CR &lt; 0.1 ✔ Nhất quán &nbsp;|&nbsp; CR ≥ 0.1 ✗ Cần xem lại</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION: MA TRẬN TIÊU CHÍ ── -->
+  <section>
+    <div class="section-label">📋 Bước 1 – Ma trận so sánh tiêu chí (5×5)</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:18px">
+        <div>
+          <h2 style="margin-bottom:5px">Ma trận tiêu chí</h2>
+          <p style="font-size:.84rem">Nhập ô trắng · Ô xanh = đường chéo (=1) · Ô teal = nghịch đảo tự động</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="loadSampleCriteria()">📥 Dữ liệu mẫu</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearCriteria()">🗑 Xóa</button>
+        </div>
+      </div>
+      <div class="matrix-wrapper">
+        <table class="matrix" id="criteriaMatrix"></table>
+      </div>
+      <div id="criteriaCR" class="hidden"></div>
+    </div>
+  </section>
+
+  <!-- ── SECTION: MA TRẬN PHƯƠNG ÁN ── -->
+  <section>
+    <div class="section-label">📋 Bước 2 – Ma trận so sánh phương án (5×5) theo từng tiêu chí</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:18px">
+        <div>
+          <h2 style="margin-bottom:5px">Ma trận phương án</h2>
+          <p style="font-size:.84rem">Chọn tab tiêu chí để nhập ma trận so sánh 5 laptop.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="loadSampleAlternatives()">📥 Dữ liệu mẫu</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearAlternatives()">🗑 Xóa</button>
+        </div>
+      </div>
+      <div class="tabs"   id="altTabs"></div>
+      <div id="altPanels"></div>
+    </div>
+  </section>
+
+  <!-- ACTION BUTTONS -->
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn btn-primary" style="padding:14px 36px;font-size:.95rem" onclick="calculate()">
+      🧮 Tính AHP &amp; Xem Kết Quả
+    </button>
+    <button class="btn btn-secondary" onclick="resetAll()">🔄 Reset tất cả</button>
+    <a href="result.html" class="btn btn-ghost">📈 Xem trang kết quả</a>
+  </div>
+
+  <div style="height:60px"></div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="footer-logo">AHP Pro</div>
+  <p>Đồ án · <span>Hệ hỗ trợ ra quyết định</span> · AHP Method · © 2025</p>
+  <div class="footer-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="products.html">Laptop</a>
+    <a href="result.html">Kết quả</a>
+    <a href="sensitivity.html">Độ nhạy</a>
+    <a href="report.html">Báo cáo</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+/* ── Render tag lists ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTagLists();
+  buildCriteriaMatrix();
+  buildAltTabs();
+  restoreFromStorage();
+  updateProgress();
+
+  // Show warning if not exactly 5 laptops
+  const warn = document.getElementById('laptopCountWarning');
+  const num  = document.getElementById('laptopCountNum');
+  if (warn && N_A !== 5) {
+    warn.style.display = 'flex';
+    if (num) num.textContent = N_A;
+  }
+
+  // Tự động điền dữ liệu mẫu nếu vừa chuyển từ trang Laptop
+  if (localStorage.getItem('ahp_autoload') === '1') {
+    localStorage.removeItem('ahp_autoload');
+    // Dùng setTimeout nhỏ để DOM matrix render xong hẳn
+    setTimeout(() => {
+      loadSampleCriteria();
+      loadSampleAlternatives();
+      updateProgress();
+
+      // Hiện toast thông báo
+      const toast = document.createElement('div');
+      toast.textContent = '✅ Đã tự động điền dữ liệu mẫu vào ma trận!';
+      toast.style.cssText = `
+        position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+        background:var(--accent);color:#fff;padding:12px 24px;border-radius:12px;
+        font-weight:700;font-size:.88rem;z-index:9999;
+        box-shadow:0 6px 24px rgba(79,142,247,.4);
+        opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);pointer-events:none;
+      `;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+      });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }, 150);
+  }
+});
+
+/* ── Cập nhật thanh tiến trình dựa trên số ô đã điền ── */
+function updateProgress() {
+  const total = (N_C*(N_C-1)/2) + N_C*(N_A*(N_A-1)/2);
+  let filled = 0;
+  for (let r=0; r<N_C; r++)
+    for (let c=r+1; c<N_C; c++)
+      if (document.getElementById(`cm_${r}_${c}`)?.value.trim()) filled++;
+  for (let ci=0; ci<N_C; ci++)
+    for (let r=0; r<N_A; r++)
+      for (let c=r+1; c<N_A; c++)
+        if (document.getElementById(`am_${ci}_${r}_${c}`)?.value.trim()) filled++;
+
+  const pct = Math.min(100, Math.round(25 + (filled/total)*75));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Hoàn thành: ${pct}%`;
+  if (pct >= 100) {
+    document.getElementById('st2').classList.remove('active');
+    document.getElementById('st2').classList.add('done');
+    document.getElementById('st2').querySelector('.step-num').textContent = '✓';
+    document.getElementById('st3').classList.remove('active');
+    document.getElementById('st3').classList.add('done');
+    document.getElementById('st3').querySelector('.step-num').textContent = '✓';
+    document.getElementById('st4').classList.add('active');
+  }
+}
+
+/* Hook vào mọi input để cập nhật progress */
+document.addEventListener('input', (e) => {
+  if (e.target.classList.contains('matrix-input')) updateProgress();
+});
+</script>
+</body>
+</html>
